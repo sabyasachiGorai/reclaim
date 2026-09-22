@@ -2,13 +2,22 @@
 #include <filesystem>
 
 int main() {
-    std::filesystem::path currentPath =
-        std::filesystem::current_path();
+    std::filesystem::path root = ".";
 
-    std::cout << "Reclaim starting...\n";
-    std::cout << "Current directory: "
-              << currentPath.string()
-              << '\n';
+    for (const auto& entry :
+         std::filesystem::recursive_directory_iterator(root)) {
+
+        if (entry.is_regular_file()) {
+            std::cout << "FILE: "
+                      << entry.path()
+                      << '\n';
+        }
+        else if (entry.is_directory()) {
+            std::cout << "DIRECTORY: "
+                      << entry.path()
+                      << '\n';
+        }
+    }
 
     return 0;
 }

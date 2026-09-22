@@ -1,3 +1,0 @@
-"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\reclaim.dir/objects.a
-C:\msys64\ucrt64\bin\ar.exe qc CMakeFiles\reclaim.dir/objects.a @CMakeFiles\reclaim.dir\objects1.rsp
-C:\msys64\ucrt64\bin\c++.exe -Wl,--whole-archive CMakeFiles\reclaim.dir/objects.a -Wl,--no-whole-archive -o reclaim.exe -Wl,--out-implib,libreclaim.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\reclaim.dir\linkLibs.rsp

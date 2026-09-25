@@ -3,7 +3,6 @@
 /cmake-test
 /information
 /.vscode
-/notes
 
 # OS-generated files
 .DS_Store
@@ -27,3 +26,4 @@ Makefile
 *.out
 
 
+/notes

@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(reclaim
     src/main.cpp
+    src/Scanner.cpp
 )
 
 target_include_directories(reclaim PRIVATE

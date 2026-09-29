@@ -4,10 +4,12 @@
 
 #include "Scanner.h"
 #include "Hasher.h"
+#include "DuplicateDetector.h"
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    if (argc < 2) {
+    if (argc < 2)
+    {
         std::cerr << "Usage: reclaim <directory>\n";
         return 1;
     }
@@ -16,26 +18,32 @@ int main(int argc, char* argv[])
 
     std::error_code ec;
 
-    if (!std::filesystem::exists(root, ec)) {
-        if (ec) {
+    if (!std::filesystem::exists(root, ec))
+    {
+        if (ec)
+        {
             std::cerr << "Error checking path: "
                       << ec.message()
                       << '\n';
         }
-        else {
+        else
+        {
             std::cerr << "Error: path does not exist.\n";
         }
 
         return 1;
     }
 
-    if (!std::filesystem::is_directory(root, ec)) {
-        if (ec) {
+    if (!std::filesystem::is_directory(root, ec))
+    {
+        if (ec)
+        {
             std::cerr << "Error checking directory: "
                       << ec.message()
                       << '\n';
         }
-        else {
+        else
+        {
             std::cerr << "Error: path is not a directory.\n";
         }
 
@@ -49,10 +57,10 @@ int main(int argc, char* argv[])
     std::sort(
         files.begin(),
         files.end(),
-        [](const FileInfo& a, const FileInfo& b) {
+        [](const FileInfo &a, const FileInfo &b)
+        {
             return a.size > b.size;
-        }
-    );
+        });
 
     const std::size_t topN = 5;
 
@@ -67,7 +75,8 @@ int main(int argc, char* argv[])
               << count
               << " largest files:\n\n";
 
-    for (std::size_t i = 0; i < count; ++i) {
+    for (std::size_t i = 0; i < count; ++i)
+    {
         std::cout << (i + 1)
                   << ". "
                   << files[i].path
@@ -78,14 +87,34 @@ int main(int argc, char* argv[])
 
     Hasher hasher;
 
-if (!files.empty())
-{
-    std::string hash =
-        hasher.hashFile(files[0].path);
+    if (!files.empty())
+    {
+        std::string hash =
+            hasher.hashFile(files[0].path);
 
-    std::cout << "\nHash:\n"
-              << hash
-              << '\n';
-}
+        std::cout << "\nHash:\n"
+                  << hash
+                  << '\n';
+    }
+
+    DuplicateDetector detector;
+
+    auto duplicates =
+        detector.findDuplicates(files);
+    for (const auto &group : duplicates)
+    {
+        std::cout << "\nDuplicate group:\n";
+
+        std::cout << "Hash: "
+                  << group.hash
+                  << '\n';
+
+        for (const auto &file : group.files)
+        {
+            std::cout << "  "
+                      << file.path
+                      << '\n';
+        }
+    }
     return 0;
 }

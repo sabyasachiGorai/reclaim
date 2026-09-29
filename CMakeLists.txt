@@ -10,6 +10,7 @@ add_executable(reclaim
     src/main.cpp
     src/Scanner.cpp
     src/Hasher.cpp
+    src/DuplicateDetector.cpp
 )
 
 target_include_directories(reclaim PRIVATE

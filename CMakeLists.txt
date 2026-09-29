@@ -9,8 +9,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(reclaim
     src/main.cpp
     src/Scanner.cpp
+    src/Hasher.cpp
 )
 
 target_include_directories(reclaim PRIVATE
     ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/third_party/picosha2
 )

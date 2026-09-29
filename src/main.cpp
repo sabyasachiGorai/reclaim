@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "Scanner.h"
+#include "Hasher.h"
 
 int main(int argc, char* argv[])
 {
@@ -75,5 +76,16 @@ int main(int argc, char* argv[])
                   << " bytes\n";
     }
 
+    Hasher hasher;
+
+if (!files.empty())
+{
+    std::string hash =
+        hasher.hashFile(files[0].path);
+
+    std::cout << "\nHash:\n"
+              << hash
+              << '\n';
+}
     return 0;
 }

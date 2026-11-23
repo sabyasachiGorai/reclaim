@@ -1,20 +1,45 @@
 #include <iostream>
 #include <filesystem>
 #include <algorithm>
+#include <string>
 
+#include "Format.h"
 #include "Scanner.h"
-#include "Hasher.h"
 #include "DuplicateDetector.h"
 
 int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        std::cerr << "Usage: reclaim <directory>\n";
+        std::cerr << "Usage: reclaim <directory> [--top N]\n";
         return 1;
     }
 
     std::filesystem::path root = argv[1];
+    std::size_t topN = 10;
+
+    for (int i = 2; i < argc; ++i)
+    {
+        std::string arg = argv[i];
+
+        if (arg == "--top" && i + 1 < argc)
+        {
+            try
+            {
+                topN = std::stoul(argv[++i]);
+            }
+            catch (const std::exception &)
+            {
+                std::cerr << "Error: --top needs a number.\n";
+                return 1;
+            }
+        }
+        else
+        {
+            std::cerr << "Unknown argument: " << arg << '\n';
+            return 1;
+        }
+    }
 
     std::error_code ec;
 
@@ -62,8 +87,6 @@ int main(int argc, char *argv[])
             return a.size > b.size;
         });
 
-    const std::size_t topN = 5;
-
     const std::size_t count =
         std::min(topN, files.size());
 
@@ -81,19 +104,7 @@ int main(int argc, char *argv[])
                   << ". "
                   << files[i].path
                   << " | "
-                  << files[i].size
-                  << " bytes\n";
-    }
-
-    Hasher hasher;
-
-    if (!files.empty())
-    {
-        std::string hash =
-            hasher.hashFile(files[0].path);
-
-        std::cout << "\nHash:\n"
-                  << hash
+                  << formatSize(files[i].size)
                   << '\n';
     }
 

@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(reclaim
     src/main.cpp
+    src/Format.cpp
     src/Scanner.cpp
     src/Hasher.cpp
     src/DuplicateDetector.cpp

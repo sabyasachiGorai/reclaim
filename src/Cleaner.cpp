@@ -31,6 +31,20 @@ std::string modifiedTime(const fs::path& path)
     return buffer;
 }
 
+// Picks a path inside dir that does not exist yet (name, name_1, name_2...).
+fs::path uniqueDestination(const fs::path& dir, const fs::path& original)
+{
+    fs::path target = dir / original.filename();
+
+    for (int n = 1; fs::exists(target); ++n)
+    {
+        target = dir / (original.stem().string() + "_" + std::to_string(n) +
+                        original.extension().string());
+    }
+
+    return target;
+}
+
 // Returns 1-based choice, 0 for skip, -1 if input ended.
 int askWhichToKeep(std::size_t count, std::istream& in, std::ostream& out)
 {
@@ -66,6 +80,7 @@ int askWhichToKeep(std::size_t count, std::istream& in, std::ostream& out)
 } // namespace
 
 void cleanDuplicates(const std::vector<DuplicateGroup>& groups,
+                     const CleanOptions& options,
                      std::istream& in,
                      std::ostream& out)
 {
@@ -93,21 +108,42 @@ void cleanDuplicates(const std::vector<DuplicateGroup>& groups,
             if (static_cast<int>(i) + 1 == keep)
                 continue;
 
+            const fs::path& path = files[i].path;
             std::error_code ec;
-            fs::remove(files[i].path, ec);
+            std::string action = options.safe ? "Moved" : "Deleted";
+
+            if (options.dryRun)
+            {
+                out << "  [dry run] Would " << (options.safe ? "move " : "delete ")
+                    << path << '\n';
+                freed += files[i].size;
+                continue;
+            }
+
+            if (options.safe)
+            {
+                fs::create_directories(options.reviewDir, ec);
+
+                if (!ec)
+                    fs::rename(path, uniqueDestination(options.reviewDir, path), ec);
+            }
+            else
+            {
+                fs::remove(path, ec);
+            }
 
             if (ec)
             {
-                out << "  Could not delete " << files[i].path << ": "
+                out << "  Could not process " << path << ": "
                     << ec.message() << '\n';
             }
             else
             {
-                out << "  Deleted " << files[i].path << '\n';
+                out << "  " << action << " " << path << '\n';
                 freed += files[i].size;
             }
         }
     }
 
-    out << "\nSpace reclaimed: " << formatSize(freed) << '\n';
+    out << (options.dryRun ? "\nSpace that would be reclaimed: " : "\nSpace reclaimed: ") << formatSize(freed) << '\n';
 }

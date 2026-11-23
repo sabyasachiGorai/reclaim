@@ -13,13 +13,14 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        std::cerr << "Usage: reclaim <directory> [--top N] [--clean]\n";
+        std::cerr << "Usage: reclaim <directory> [--top N] [--clean] [--safe] [--dry-run]\n";
         return 1;
     }
 
     std::filesystem::path root = argv[1];
     std::size_t topN = 10;
     bool clean = false;
+    CleanOptions options;
 
     for (int i = 2; i < argc; ++i)
     {
@@ -40,6 +41,14 @@ int main(int argc, char *argv[])
         else if (arg == "--clean")
         {
             clean = true;
+        }
+        else if (arg == "--safe")
+        {
+            options.safe = true;
+        }
+        else if (arg == "--dry-run")
+        {
+            options.dryRun = true;
         }
         else
         {
@@ -82,6 +91,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    options.reviewDir = root / "_duplicates_review";
+
     Scanner scanner;
 
     std::vector<FileInfo> files = scanner.scan(root);
@@ -122,7 +133,7 @@ int main(int argc, char *argv[])
     printDuplicates(duplicates);
 
     if (clean && !duplicates.empty())
-        cleanDuplicates(duplicates, std::cin, std::cout);
+        cleanDuplicates(duplicates, options, std::cin, std::cout);
 
     return 0;
 }

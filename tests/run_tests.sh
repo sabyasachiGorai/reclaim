@@ -34,4 +34,18 @@ KEPT=$(ls "$DIR/data/a.txt" "$DIR/data/sub/renamed.txt" 2>/dev/null | wc -l)
 check "--clean keeps exactly one copy"     test "$KEPT" -eq 1
 check "--clean leaves other files alone"   test -f "$DIR/data/x.txt" -a -f "$DIR/data/y.txt"
 
+# --dry-run: nothing changes
+mkdir -p "$DIR/d"
+printf 'dup' > "$DIR/d/one.txt"; printf 'dup' > "$DIR/d/two.txt"
+printf '1\n' | "$BIN" "$DIR/d" --clean --dry-run >/dev/null
+check "--dry-run changes nothing"          test -f "$DIR/d/one.txt" -a -f "$DIR/d/two.txt"
+
+# --safe: extra copies move to _duplicates_review, even when filenames collide
+mkdir -p "$DIR/s/p" "$DIR/s/q" "$DIR/s/r"
+for d in p q r; do printf 'dup' > "$DIR/s/$d/same.txt"; done
+printf '1\n' | "$BIN" "$DIR/s" --clean --safe >/dev/null
+check "--safe moves 2 copies, none lost"   test "$(ls "$DIR/s/_duplicates_review" | wc -l)" -eq 2
+OUT2="$("$BIN" "$DIR/s")"
+check "review folder is not rescanned"     grep -q "Duplicate groups: 0" <<<"$OUT2"
+
 exit $FAIL

@@ -31,6 +31,14 @@ std::vector<FileInfo> Scanner::scan(
 
         const auto& entry = *it;
 
+        // Don't re-scan files that --safe already moved aside.
+        if (entry.path().filename() == "_duplicates_review")
+        {
+            it.disable_recursion_pending();
+            it.increment(ec);
+            continue;
+        }
+
         // Skip symlinks so a link is never mistaken for a duplicate of its target.
         if (!entry.is_symlink(ec) && entry.is_regular_file(ec))
         {

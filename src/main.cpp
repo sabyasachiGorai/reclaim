@@ -4,6 +4,7 @@
 #include <string>
 
 #include "Format.h"
+#include "Report.h"
 #include "Scanner.h"
 #include "DuplicateDetector.h"
 
@@ -112,20 +113,7 @@ int main(int argc, char *argv[])
 
     auto duplicates =
         detector.findDuplicates(files);
-    for (const auto &group : duplicates)
-    {
-        std::cout << "\nDuplicate group:\n";
+    printDuplicates(duplicates);
 
-        std::cout << "Hash: "
-                  << group.hash
-                  << '\n';
-
-        for (const auto &file : group.files)
-        {
-            std::cout << "  "
-                      << file.path
-                      << '\n';
-        }
-    }
     return 0;
 }

@@ -1,6 +1,8 @@
 #include "DuplicateDetector.h"
 #include "Hasher.h"
 
+#include <algorithm>
+
 std::unordered_map<
     std::uintmax_t,
     std::vector<FileInfo>
@@ -89,6 +91,16 @@ DuplicateDetector::findDuplicates(
             );
         }
     }
+
+    // Biggest savings first, so the report and cleanup start with what matters.
+    std::sort(
+        duplicates.begin(),
+        duplicates.end(),
+        [](const DuplicateGroup& a, const DuplicateGroup& b)
+        {
+            return a.wastedBytes() > b.wastedBytes();
+        }
+    );
 
     return duplicates;
 }

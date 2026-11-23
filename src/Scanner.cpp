@@ -31,7 +31,8 @@ std::vector<FileInfo> Scanner::scan(
 
         const auto& entry = *it;
 
-        if (entry.is_regular_file(ec))
+        // Skip symlinks so a link is never mistaken for a duplicate of its target.
+        if (!entry.is_symlink(ec) && entry.is_regular_file(ec))
         {
             FileInfo info;
 

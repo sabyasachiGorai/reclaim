@@ -28,4 +28,10 @@ check "same size, different content apart" bash -c '! grep -q -e x.txt -e y.txt 
 check "symlink is ignored"                 bash -c '! grep -q link.txt <<<"$0"' "$OUT"
 check "wasted space is reported"           grep -q "reclaimed: 12 B" <<<"$OUT"
 
+# --clean: garbage input is rejected, then choice 1 keeps one copy and deletes the other
+printf 'garbage\n99\n1\n' | "$BIN" "$DIR/data" --clean >/dev/null
+KEPT=$(ls "$DIR/data/a.txt" "$DIR/data/sub/renamed.txt" 2>/dev/null | wc -l)
+check "--clean keeps exactly one copy"     test "$KEPT" -eq 1
+check "--clean leaves other files alone"   test -f "$DIR/data/x.txt" -a -f "$DIR/data/y.txt"
+
 exit $FAIL

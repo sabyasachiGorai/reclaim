@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <string>
 
+#include "Cleaner.h"
 #include "Format.h"
 #include "Report.h"
 #include "Scanner.h"
@@ -12,12 +13,13 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        std::cerr << "Usage: reclaim <directory> [--top N]\n";
+        std::cerr << "Usage: reclaim <directory> [--top N] [--clean]\n";
         return 1;
     }
 
     std::filesystem::path root = argv[1];
     std::size_t topN = 10;
+    bool clean = false;
 
     for (int i = 2; i < argc; ++i)
     {
@@ -34,6 +36,10 @@ int main(int argc, char *argv[])
                 std::cerr << "Error: --top needs a number.\n";
                 return 1;
             }
+        }
+        else if (arg == "--clean")
+        {
+            clean = true;
         }
         else
         {
@@ -114,6 +120,9 @@ int main(int argc, char *argv[])
     auto duplicates =
         detector.findDuplicates(files);
     printDuplicates(duplicates);
+
+    if (clean && !duplicates.empty())
+        cleanDuplicates(duplicates, std::cin, std::cout);
 
     return 0;
 }
